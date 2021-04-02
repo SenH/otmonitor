@@ -16,6 +16,8 @@ set mqttactions {
     ctrlsetpt		{temp	CS}
     chenable		{on	CH}
     ventsetpt		{level	VS}
+    set_resp         {resp SR}
+    clear_resp       {resp CR}
 }
 
 proc mqttinit {} {
@@ -24,7 +26,10 @@ proc mqttinit {} {
     set mqtt [mqtt new -username $cfg(mqtt,username) \
       -password $cfg(mqtt,password) -keepalive $cfg(mqtt,keepalive) \
       -retransmit [expr {$cfg(mqtt,retransmit) * 1000}]]
+
+    $mqtt will $cfg(mqtt,eventtopic) offline
     $mqtt connect $cfg(mqtt,client) $cfg(mqtt,broker) $cfg(mqtt,port)
+    $mqtt publish $cfg(mqtt,eventtopic) online 1 1
     $mqtt subscribe $cfg(mqtt,actiontopic)/+ mqttaction
 
     signalproc mqttsignal
